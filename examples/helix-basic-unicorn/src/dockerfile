@@ -1,0 +1,27 @@
+# escape=`
+ARG BASE_IMAGE
+
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8 as builder
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+WORKDIR c:\src
+
+COPY . .
+
+#RUN mkdir c:\unicorn
+
+#RUN robocopy c:\src c:\unicorn *.yml /MIR 
+
+RUN msbuild Environment\Website\website.csproj  /restore /m /p:DeployOnBuild=true /p:OutputPath=c:\out
+
+FROM $BASE_IMAGE as development
+
+COPY --from=builder ["C:\\src\\Environment\\Website\\bin\\Debug\\Publish", "c:\\inetpub\\wwwroot"]
+
+#COPY --from=builder ["c:\\unicorn", "c:\\unicorn"]
+
+# #find transform files and do transformation
+# RUN (Get-ChildItem -Path 'C:\\inetpub\\wwwroot\\transforms\\web*.xdt' -Recurse ) | `
+#     ForEach-Object { & 'C:\\tools\\scripts\\Invoke-XdtTransform.ps1' -Path 'C:\\inetpub\\wwwroot\\web.config' -XdtPath $_.FullName `
+#     -XdtDllPath 'C:\\tools\\bin\\Microsoft.Web.XmlTransform.dll'; }; 
