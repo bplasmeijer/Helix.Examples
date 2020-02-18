@@ -22,28 +22,6 @@ services:
     environment:
       SOLR_LOG_LEVEL: INFO
 
-  cd:
-    image: ${REGISTRY}sitecore-xm-sxa-cd:${SITECORE_VERSION}-windowsservercore-${WINDOWSSERVERCORE_VERSION}
-    entrypoint: powershell.exe -Command "& C:\\tools\\entrypoints\\iis\\Development.ps1"
-    ports:
-      - "44002:80"
-    environment:
-      SITECORE_LICENSE: ${SITECORE_LICENSE}
-      SITECORE_APPSETTINGS_ROLE:DEFINE: ContentDelivery
-      SITECORE_APPSETTINGS_SXAXM:DEFINE: sxaxmonly
-      SITECORE_CONNECTIONSTRINGS_SECURITY: Data Source=sql;Initial Catalog=Sitecore.Core;User ID=sa;Password=${SQL_SA_PASSWORD}
-      SITECORE_CONNECTIONSTRINGS_WEB: Data Source=sql;Initial Catalog=Sitecore.Web;User ID=sa;Password=${SQL_SA_PASSWORD}
-      SITECORE_CONNECTIONSTRINGS_EXPERIENCEFORMS: Data Source=sql;Initial Catalog=Sitecore.ExperienceForms;User ID=sa;Password=${SQL_SA_PASSWORD}
-      SITECORE_CONNECTIONSTRINGS_SOLR.SEARCH: http://solr:8983/solr
-      ENTRYPOINT_STDOUT_IIS_ACCESS_LOG_ENABLED: 'true'
-      ENTRYPOINT_STDOUT_IIS_ERROR_LOG_ENABLED: 'true'
-      ENTRYPOINT_STDOUT_SITECORE_LOG_ENABLED: 'true'
-    depends_on:
-      sql:
-        condition: service_healthy
-      solr:
-        condition: service_started
-
   cm:
     image: helix-basic-unicorn-cm:9.3.0-windowsservercore-ltsc2019
     build:
